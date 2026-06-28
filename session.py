@@ -1,55 +1,133 @@
-# ==========================
-# Active Session
-# ==========================
-
-_current_conversation = None
+from database import supabase
 
 
 # ==========================
-# Set Active Conversation
+# Get Current Session
 # ==========================
 
-def set_current_conversation(conversation_id):
+def get_session():
     """
-    Sets the active conversation.
+    Returns the current authenticated session.
     """
 
-    global _current_conversation
-    _current_conversation = conversation_id
+    try:
+
+        response = supabase.auth.get_session()
+
+        return response.session
+
+    except Exception:
+
+        return None
 
 
 # ==========================
-# Get Active Conversation
+# Get Current User
 # ==========================
 
-def get_current_conversation():
+def get_user():
     """
-    Returns the active conversation ID.
-    """
-
-    return _current_conversation
-
-
-# ==========================
-# Check Session
-# ==========================
-
-def has_active_conversation():
-    """
-    Returns True if a conversation is active.
+    Returns the currently authenticated user.
     """
 
-    return _current_conversation is not None
+    try:
+
+        response = supabase.auth.get_user()
+
+        return response.user
+
+    except Exception:
+
+        return None
 
 
 # ==========================
-# Reset Session
+# Get User ID
 # ==========================
 
-def reset_session():
+def get_user_id():
     """
-    Clears the active conversation.
+    Returns the logged-in user's ID.
     """
 
-    global _current_conversation
-    _current_conversation = None
+    user = get_user()
+
+    if user:
+
+        return user.id
+
+    return None
+
+
+# ==========================
+# Get User Email
+# ==========================
+
+def get_user_email():
+    """
+    Returns the logged-in user's email.
+    """
+
+    user = get_user()
+
+    if user:
+
+        return user.email
+
+    return None
+
+
+# ==========================
+# Check Login Status
+# ==========================
+
+def is_logged_in():
+    """
+    Returns True if a user is logged in.
+    """
+
+    return get_user() is not None
+
+
+# ==========================
+# Refresh Session
+# ==========================
+
+def refresh_session():
+    """
+    Refreshes the current session.
+    """
+
+    try:
+
+        session = get_session()
+
+        if session:
+
+            return supabase.auth.refresh_session(
+                session.refresh_token
+            )
+
+        return None
+
+    except Exception:
+
+        return None
+
+
+# ==========================
+# Clear Session
+# ==========================
+
+def clear_session():
+    """
+    Logs out the current user.
+    """
+
+    try:
+
+        supabase.auth.sign_out()
+
+    except Exception:
+
+        pass
